@@ -1,0 +1,21 @@
+---
+title: "Test Statistic Composite"
+author: ""
+date: ""
+output: html_document
+---
+
+This will be the HTML to include on the app home page.
+
+Decide what information you want to include here......
+
+
+Testing........
+
+
+Preproccessing raw data code lines:
+drop_empty_rows <- function(df) {df[rowSums(!is.na(df)) > 2, , drop = FALSE]}
+data <- drop_empty_rows(data)
+
+
+

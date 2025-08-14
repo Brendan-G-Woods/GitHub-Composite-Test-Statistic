@@ -35,7 +35,9 @@ ui <- dashboardPage(
                 menuItem("Home",     tabName = "home",     icon = icon("home")),
                 menuItem("Analysis - Continuous/Binary", tabName = "analysis", icon = icon("chart-bar")),
                 menuItem("Analysis - All Data Types", tabName = "analysis_cat", icon = icon("table")),
-                menuItem("Source code", tabName = "code",  icon = icon("file-code"))
+                menuItem("Source code", icon = icon("github"),
+                         href = "https://github.com/Brendan-G-Woods/GitHub-Composite-Test-Statistic",
+                         newtab = TRUE)
     )
   ),
   dashboardBody(
@@ -305,11 +307,7 @@ fluidRow(
     )
     
   )
-)),
-      
-      tabItem(tabName = "code",
-              verbatimTextOutput("source_code_output")
-      )
+))
     )
   )
 )
@@ -962,9 +960,8 @@ server <- function(input, output, session) {
   
   
   
-  output$source_code_output <- renderText({
-    "Display source code if needed."
-  })
+
+
 }
 
 shinyApp(ui, server)

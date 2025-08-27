@@ -12,7 +12,7 @@ run_raw_permutation_analysis <- function(df, weights, id_col = 1, group_col = 2,
     sapply(test_cols, function(i) {
       x <- data[[i]][group_vec == 1]
       y <- data[[i]][group_vec == 0]
-      t.test(x, y, na.action = na.omit)$statistic
+      t.test(x, y)$statistic
     })
   }
   

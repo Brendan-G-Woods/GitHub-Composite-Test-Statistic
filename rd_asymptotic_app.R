@@ -33,19 +33,11 @@ run_rawdata_analysis <- function(df, weights, id_col = 1, group_col = 2, n_sim =
   qc_composite <- sum(weights*test_stats^2)
   eigen_decomp <- eigen(rd_cm)
   srootD <- diag(sqrt(eigen_decomp$values))
-  # t1 <- Sys.time()
   Q <- eigen_decomp$vectors
   middle_mat <- srootD%*%t(Q)%*%diag(weights)%*%Q%*%srootD
   rnorm_mat <- matrix(rnorm(n_sim*length(test_stats)),ncol=length(test_stats))
   null_sims <- rowSums((rnorm_mat %*% middle_mat) * rnorm_mat)
   qc_null_distribution <- null_sims
-  # t2 <- Sys.time()
-  #  t2-t1
-  # t1 <- Sys.time()
-  #  chi_sim <- matrix(rchisq(n_sim * length(test_stats), df = 1), ncol = length(test_stats))
-  #  null_qc_composites <- chi_sim %*% eigen_values
-  #  t2 <- Sys.time()
-  #  t2-t1
   qc_pvalue <- sum(null_sims >= qc_composite)/n_sim
 
   

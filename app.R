@@ -388,41 +388,56 @@ server <- function(input, output, session) {
     datatable(raw_data(), options = list(scrollX = TRUE))
   })
   
+  oi  <- c("#E69F00","#56B4E9","#009E73","#F0E442","#0072B2","#D55E00","#CC79A7","#000000")
+  oi2 <- oi[c(5, 1)]
+  
   output$plot <- renderUI({
     req(raw_data())
-    output$rawPlot <- renderPlot({
-      df <- raw_data()
-      df[[2]] <- as.factor(df[[2]])
-      colnames(df)[1:2] <- c("PatientID", "Treatment")
-      plots <- list()
-      for (i in 3:ncol(df)) {
-        var <- df[[i]]
-        var_name <- names(df)[i]
-        temp_df <- data.frame(Treatment = df$Treatment, Value = var)
-        
-        if (length(unique(na.omit(var))) <= 2) {
-          temp_df$Value <- as.factor(temp_df$Value)
-          p <- ggplot(temp_df, aes(x = Treatment, fill = Value)) +
-            geom_bar(position = "fill") +
-            scale_fill_manual(values = c("0" = "orange", "1" = "black")) +
-            scale_y_continuous(labels = scales::percent_format()) +
-            labs(title = paste("Stacked Barplot of", var_name), y = "Proportion", fill = var_name) +
-            theme_minimal(base_size = 16)
-        } else {
-          p <- ggplot(temp_df, aes(x = Treatment, y = Value, fill = Treatment)) +
-            geom_boxplot() +
-            scale_fill_manual(values = c("0" = "steelblue", "1" = "forestgreen")) +
-            labs(title = paste("Boxplot of", var_name), y = var_name) +
-            theme_minimal(base_size = 16)
-        }
-        
-        plots[[length(plots) + 1]] <- p
-      }
+    
+    df <- raw_data()
+    df[[2]] <- as.factor(df[[2]])
+    colnames(df)[1:2] <- c("PatientID", "Treatment")
+    
+    plots <- list()
+    for (i in 3:ncol(df)) {
+      var <- df[[i]]
+      var_name <- names(df)[i]
+      temp_df <- data.frame(Treatment = df$Treatment, Value = var)
       
-      grid.arrange(grobs = plots, ncol = 2)
+      if (length(unique(na.omit(var))) <= 2) {
+        temp_df$Value <- as.factor(temp_df$Value)
+        p <- ggplot(temp_df, aes(x = Treatment, fill = Value)) +
+          geom_bar(position = "fill") +
+          scale_fill_manual(values = oi2) +
+          scale_y_continuous(labels = scales::percent_format()) +
+          labs(title = paste("Stacked Barplot of", var_name),
+               y = "Proportion", fill = var_name) +
+          theme_minimal(base_size = 16)
+      } else {
+        p <- ggplot(temp_df, aes(x = Treatment, y = Value, fill = Treatment)) +
+          geom_boxplot(outlier.shape = NA) +
+          geom_jitter(width = 0.15, alpha = 0.2) +
+          scale_fill_manual(values = oi2) +
+          labs(title = paste("Boxplot of", var_name), y = var_name) +
+          theme_minimal(base_size = 16) +
+          theme(legend.position = "none")
+      }
+      plots[[length(plots) + 1]] <- p
+    }
+    
+    ncol     <- 3L
+    panel_h  <- 600L
+    rows     <- ceiling(length(plots) / ncol)
+    device_h <- rows * panel_h + 60
+    
+    output$rawPlot <- renderPlot({
+      grid.arrange(grobs = plots, ncol = ncol)
     })
-    plotOutput("rawPlot", height = "700px")
+    
+    plotOutput("rawPlot", height = paste0(device_h, "px"))
   })
+  
+  
   
   observeEvent(input$cm_file, {
     req(input$cm_file)
@@ -905,11 +920,6 @@ server <- function(input, output, session) {
     )
   })
   
-  
-
-
-  oi  <- c("#E69F00","#56B4E9","#009E73","#F0E442","#0072B2","#D55E00","#CC79A7","#000000")
-  oi2 <- oi[c(5, 1)]
   
   make_var_plots <- eventReactive(input$show_var_plots_cat, {
     req(raw_data_cat())

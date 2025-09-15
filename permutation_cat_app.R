@@ -8,7 +8,7 @@ run_raw_permutation_analysis <- function(
   
   test_cols <- setdiff(seq_along(df), c(id_col, group_col))
   cn        <- names(df)
-  group     <- df[[group_col]]
+  group     <- factor(df[[group_col]])
   
   # remove survival time & censor from standard test cols
   surv_times  <- if (length(survival_pairs)) vapply(survival_pairs, `[[`, "", "time")   else character(0)

@@ -16,13 +16,6 @@ run_raw_permutation_analysis <- function(df, weights, id_col = 1, group_col = 2,
     })
   }
   
-  compute_weighted_t_stats_cat <- function(data, group_vec) {
-    sapply(categorical_var, function(i){
-      x <- data[[i]][group_vec == 1]
-      y <- data[[i]][group_vec == 0]
-    })
-  }
-  
   t_obs <- compute_weighted_t_stats(df, group)
   sc_obs <- sum(weights * t_obs)
   qc_obs <- sum((weights * t_obs)^2)
@@ -39,7 +32,7 @@ run_raw_permutation_analysis <- function(df, weights, id_col = 1, group_col = 2,
     t_values <- sapply(test_cols, function(j) {
       x <- df[[j]][sample_group == 1]
       y <- df[[j]][sample_group == 0]
-      t.test(x, y, na.action = na.omit)$statistic
+      t.test(x, y)$statistic
     })
     sc_null[i] <- sum(weights * t_values)
     qc_null[i] <- sum((weights * t_values)^2)

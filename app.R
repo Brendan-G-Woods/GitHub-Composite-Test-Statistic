@@ -36,8 +36,8 @@ ui <- dashboardPage(
   dashboardSidebar(
     sidebarMenu(id = "tab",
                 menuItem("Home",     tabName = "home",     icon = icon("home")),
-                menuItem("Analysis - Continuous/Binary", tabName = "analysis", icon = icon("chart-bar")),
-                menuItem("Analysis - All Data Types", tabName = "analysis_cat", icon = icon("table")),
+                menuItem("Analysis - SC/QC Composite", tabName = "analysis", icon = icon("chart-bar")),
+                menuItem("Analysis - QC Composite", tabName = "analysis_cat", icon = icon("table")),
                 menuItem("Source code", icon = icon("github"),
                          href = "https://github.com/Brendan-G-Woods/GitHub-Composite-Test-Statistic",
                          newtab = TRUE)

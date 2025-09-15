@@ -34,14 +34,13 @@ run_raw_permutation_analysis <- function(
     v <- df[[j]]
     
     
-    keep <- !(is.na(v) | is.na(group_vec))
+    keep <- !(is.na(group_vec))
     if (!any(keep)) return(0)
     
     vv <- v[keep]
     g  <- droplevels(as.factor(group_vec[keep]))
     G  <- nlevels(g)
-    if (G < 2L) return(0)  # need at least 2 groups
-    
+
     if (is_cat[col_idx]) {
       # categorical variables
       fv <- droplevels(as.factor(vv))
@@ -60,10 +59,8 @@ run_raw_permutation_analysis <- function(
       
     } else {
       # continuous/binary variable branch
-      fstat <- tryCatch(
-        as.numeric(oneway.test(vv ~ g, var.equal = FALSE)$statistic),
-        error = function(e) NA_real_
-      )
+      fstat <- as.numeric(oneway.test(vv ~ g, var.equal = FALSE)$statistic)
+      
       if (!is.finite(fstat)) return(0)
       
       stat <- (fstat / (G - 1))

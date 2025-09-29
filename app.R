@@ -61,7 +61,7 @@ ui <- dashboardPage(
                 column(width = 12,
                        tags$iframe(
                          srcdoc = html_content,
-                         width  = "80%",
+                         width  = "90%",
                          height = "800px",
                          style  = "border: none; zoom: 1.8;"
                        )

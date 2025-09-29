@@ -4,18 +4,30 @@ author: ""
 date: ""
 output: html_document
 ---
+<style>
+body {
+  text-align: left !important;
+}
 
-This will be the HTML to include on the app home page.
+</style>
 
-Decide what information you want to include here......
+Welcome to the application for test statistic composites. Here we propose two methods of forming a composite test statistic;
+
+1. A composite formed by summing the test statistic of each variable ($SC$)
+$$ Summed\ Composite\ (SC) = w_1\cdot TS_1 + w_2\cdot TS_2 +  ... +w_K \cdot TS_K$$ <br>
+Particularly useful when treatment effects are expected to act in the same direction across outcomes<br>
+
+2. A composite formed by summing the square of the test statistic of each variable ($QC$)<br>
+$$Squared\ Composite\ (QC)= w_1\cdot TS_1^2 +w_2\cdot TS_2^2 + ... +w_K\cdot TS_K^2$$<br>
+Retains the strength of each effect regardless of individual outcomes direction and can handle a wider range of outcome types
+
+This application allows the analysis of  both types of composites using asymptotic theory and permutation testing for binary and continuous outcomes. Other types of outcomes such as categorical and survival data, as well as comparing more than two treatment groups can also be assessed, although only in the squared (QC) form using permutation testing.<br><br>
 
 
-Testing........
+
+Please refer to the tutorial tab for further guidance on how to use the app.
 
 
-Preproccessing raw data code lines:
-drop_empty_rows <- function(df) {df[rowSums(!is.na(df)) > 2, , drop = FALSE]}
-data <- drop_empty_rows(data)
 
 
 

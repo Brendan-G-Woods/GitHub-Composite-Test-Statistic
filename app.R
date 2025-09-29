@@ -28,7 +28,7 @@ library('stats')
 
 
 html_content <- paste(readLines("Home-Page-HTML.html"), collapse = "\n")
-
+html_tutorial <- paste(readLines("Tutorial.html"), collapse = "\n")
 
 ui <- dashboardPage(
   skin = "green",
@@ -36,6 +36,7 @@ ui <- dashboardPage(
   dashboardSidebar(
     sidebarMenu(id = "tab",
                 menuItem("Home",     tabName = "home",     icon = icon("home")),
+                menuItem("Tutorial",     tabName = "tutorial",     icon = icon("chalkboard-teacher")),
                 menuItem("Analysis - SC/QC Composite", tabName = "analysis", icon = icon("chart-bar")),
                 menuItem("Analysis - QC Composite", tabName = "analysis_cat", icon = icon("table")),
                 menuItem("Source code", icon = icon("github"),
@@ -60,9 +61,22 @@ ui <- dashboardPage(
                 column(width = 12,
                        tags$iframe(
                          srcdoc = html_content,
-                         width  = "100%",
+                         width  = "80%",
                          height = "800px",
-                         style  = "border: none;"
+                         style  = "border: none; zoom: 1.8;"
+                       )
+                )
+              )
+      ),
+      
+      tabItem(tabName = "tutorial",
+              fluidRow(
+                column(width = 12,
+                       tags$iframe(
+                         srcdoc = html_tutorial,
+                         width  = "80%",
+                         height = "800px",
+                         style  = "border: none; zoom: 1.8;"
                        )
                 )
               )

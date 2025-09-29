@@ -11,9 +11,10 @@ output:
 body {
   text-align: left !important;
 }
-
 </style>
-**Choosing Analysis Tab & General  Considerations**<br>
+
+<span style="font-size:20px;">**Choosing Analysis Tab & General  Considerations**<br>
+
 Before using the application, you first need to decide which analysis tab is appropriate, depending on your own circumstances. This depends on the type of variables you wish to form into a composite and also the number of intervention groups.<br>
 
 The "Analysis-SC/QC Composite" tab is only suitable for composites formed from binary and continuous variables, and for comparing only two intervention groups. <br>
@@ -21,7 +22,8 @@ The "Analysis-QC Composite" tab can also handle categorical data and survival an
 
 Note that only raw data and permutation testing can be used for the "Analysis-QC Composite" tab. <br>
 
-**Notes on raw data** <br>
+<span style="font-size:20px;">**Notes on raw data** <br>
+
 Additionally, there are a few important details which are required when uploading data. Raw data must be uploaded as a CSV file in wide format, with all variables numeric (except column names).
 **Importantly** the first column of the file should indicate an ID for each individual, and the second column should indicate the intervention group. The following columns should only include the relevant outcomes for creating the composite (as all the following columns will be used to create the composite test statistic). Ensure there are no missing values in the treatment group column. You may upload data with or without column names, although we would recommend including column names for the sake of simplicity. If column names are present, ensure that the "Header" check box is ticked as seen below. If your file does not contain column names, ensure this check box is un-ticked. <br>
 
@@ -44,7 +46,8 @@ The "Select Categorical Variables" box will show a drop down of all variables in
 ```{r, echo=FALSE, fig.align='center'}
 knitr::include_graphics("C:/GitHub Composite Test Statistic/Survival Pair.png")
 ```
-**Notes on Uploading Correlation Matrix**<br>
+<span style="font-size:20px;">**Notes on Uploading Correlation Matrix**<br>
+
 For uploading the correlation matrix CSV, ensure that you upload only the correlation matrix  of the outcome variables of interest. Ensure that both row names and column names are included, as seen in the example format below. The individual test statistics must be calculated and uploaded manually by the user. <br>
 ```{r, echo=FALSE, fig.align='center'}
 knitr::include_graphics("C:/GitHub Composite Test Statistic/Example Correlation Matrix.png")
@@ -57,7 +60,8 @@ knitr::include_graphics("C:/GitHub Composite Test Statistic/SC-QC Tutorial CMTS 
 ```
 <br>
 
-**General Settings** <br>
+<span style="font-size:20px;">**General Settings** <br>
+
 The analysis settings tab allows the user to change some of the default settings of the analysis, including the level of significance ($\alpha$), the seed used for the simulations/permutations, and the sided-ness of the hypothesis test (relevant only for the summed composite(SC)). These settings can be accessed via the "Change Defaults" button in the Analysis Settings box, shown below.<br>
 
 
@@ -66,7 +70,8 @@ knitr::include_graphics("C:/GitHub Composite Test Statistic/Analysis Settings .p
 ```
 
 
-**Notes on the Number of Permutations/Simulations**
+<span style="font-size:20px;">**Notes on the Number of Permutations/Simulations**<br> 
+
 When choosing the number of permutations or simulations to run, two main factors should be considered: the complexity of the data and the desired precision of the p-value. Increasing the number of permutations improves the precision of the reported p-value, but also increases computational cost. Large datasets further amplify this burden, making very high numbers of permutations impractical. In practice, 500–1000 permutations are often sufficient for most analyses, though this depends on the desired level of significance. Asymptotic simulations are generally much more efficient than permutation testing, and therefore can accommodate larger numbers of replications.Trial and error may be required to determine how many permutations can be performed to obtain the most precise p-value possible.
 
 

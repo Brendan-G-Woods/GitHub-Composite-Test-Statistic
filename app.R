@@ -403,8 +403,7 @@ server <- function(input, output, session) {
   })
   
   oi  <- c("#E69F00","#56B4E9","#009E73","#F0E442","#0072B2","#D55E00","#CC79A7","#000000")
-  oi2 <- oi[c(5, 1)]
-  
+
   output$plot <- renderUI({
     req(raw_data())
     
@@ -422,7 +421,7 @@ server <- function(input, output, session) {
         temp_df$Value <- as.factor(temp_df$Value)
         p <- ggplot(temp_df, aes(x = Treatment, fill = Value)) +
           geom_bar(position = "fill") +
-          scale_fill_manual(values = oi2) +
+          scale_fill_manual(values = oi) +
           scale_y_continuous(labels = scales::percent_format()) +
           labs(title = paste("Stacked Barplot of", var_name),
                y = "Proportion", fill = var_name) +
@@ -431,7 +430,7 @@ server <- function(input, output, session) {
         p <- ggplot(temp_df, aes(x = Treatment, y = Value, fill = Treatment)) +
           geom_boxplot(outlier.shape = NA) +
           geom_jitter(width = 0.15, alpha = 0.2) +
-          scale_fill_manual(values = oi2) +
+          scale_fill_manual(values = oi) +
           labs(title = paste("Boxplot of", var_name), y = var_name) +
           theme_minimal(base_size = 16) +
           theme(legend.position = "none")
@@ -976,7 +975,7 @@ server <- function(input, output, session) {
         p <- ggplot(temp_df, aes(x = Treatment, y = Value, fill = Treatment)) +
           geom_boxplot(outlier.shape = NA) +
           geom_jitter(width = 0.15, alpha = 0.2) +
-          scale_fill_manual(values = oi2) +
+          scale_fill_manual(values = oi) +
           labs(title = paste("Boxplot of", var_name),
                         x = "Treatment", y = var_name) +
           theme_minimal(base_size = 16) +

@@ -48,7 +48,7 @@ ui <- dashboardPage(
     useShinyjs(),
     tags$head(
       tags$style(HTML("
-        .skin-green .box.box-solid.box-success,
+        .skin-green .box.box-solid.box-success,,l -9
         .skin-green .box.box-success {
           border: 1px solid #2E8B57;
         }
@@ -640,7 +640,7 @@ server <- function(input, output, session) {
         labs(title = "SC - Asymptotic", x = NULL, y = "Frequency") +
         theme_minimal() +  
         theme(
-          plot.title = element_text(size = 16, face = "bold"),
+          plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
           axis.title.x = element_text(size = 14),
           axis.title.y = element_text(size = 16)
         )
@@ -678,7 +678,7 @@ server <- function(input, output, session) {
         labs(title = "SC - Permutation", x = NULL, y = "Frequency") +
         theme_minimal() + 
         theme(
-          plot.title = element_text(size = 16, face = "bold"),
+          plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
           axis.title.x = element_text(size = 14),
           axis.title.y = element_text(size = 16)
         )
@@ -716,7 +716,7 @@ server <- function(input, output, session) {
         labs(title = "QC - Asymptotic", x = NULL, y = "Frequency") +
         theme_minimal() +
         theme(
-          plot.title = element_text(size = 16, face = "bold"),
+          plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
           axis.title.x = element_text(size = 14),
           axis.title.y = element_text(size = 16)
         )
@@ -740,7 +740,7 @@ server <- function(input, output, session) {
         labs(title = "QC - Permutation", x = NULL, y = "Frequency") +
         theme_minimal() +
         theme(
-          plot.title = element_text(size = 16, face = "bold"),
+          plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
           axis.title.x = element_text(size = 14),
           axis.title.y = element_text(size = 16)
         )
@@ -1155,7 +1155,8 @@ server <- function(input, output, session) {
     p <- ggplot(df, aes(x = null_distribution)) +
       geom_histogram(bins = n_bins, fill = "darksalmon", color = "darksalmon") +
       labs(title = "QC - Permutation", x = NULL, y = "Frequency") +
-      theme_minimal(base_size = 16)
+      theme_minimal(base_size = 16) +
+      theme(plot.title = element_text(size = 16, face = "bold", hjust = 0.5))
     
     hist_data <- ggplot_build(p)$data[[1]]
     max_count <- max(hist_data$count)

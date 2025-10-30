@@ -15,16 +15,17 @@ body {
 
 <span style="font-size:20px;">**Choosing Analysis Tab & General  Considerations**<br>
 
-Before using the application, you first need to decide which analysis tab is appropriate, depending on your own circumstances. This depends on the type of variables you wish to form into a composite and also the number of intervention groups.<br>
+Before using the application, you first need to decide which analysis tab is appropriate, depending on your own circumstances. This depends on the type of variables you wish to form into a composite, the number of intervention groups and whether you wish to use the summed composite or squared composite.<br>
 
-The "Analysis-SC/QC Composite" tab is only suitable for composites formed from binary and continuous variables, and for comparing only two intervention groups. <br>
-The "Analysis-QC Composite" tab can also handle categorical data and survival analysis, as well as being able to compare multiple intervention groups.<br>
+- The "Analysis-SC/QC Composite" tab is only suitable for composites formed from binary and continuous variables, and for comparing only two intervention groups. <br>
+
+- The "Analysis-QC Composite" tab can also handle categorical data and survival analysis, as well as being able to compare multiple intervention groups.<br>
 
 Note that only raw data and permutation testing can be used for the "Analysis-QC Composite" tab. <br>
 
-<span style="font-size:20px;">**Notes on raw data** <br>
+<span style="font-size:20px;">**Notes on Uploading Raw Data** <br>
 
-Additionally, there are a few important details which are required when uploading data. Raw data must be uploaded as a CSV file in wide format, with all variables numeric (except column names).
+Additionally, there are a few important details which are required when uploading the raw data. Raw data must be uploaded as a CSV file in wide format, with all variables numeric (except column names).
 **Importantly** the first column of the file should indicate an ID for each individual, and the second column should indicate the intervention group. The following columns should only include the relevant outcomes for creating the composite (as all the following columns will be used to create the composite test statistic). Ensure there are no missing values in the treatment group column. You may upload data with or without column names, although we would recommend including column names for the sake of simplicity. If column names are present, ensure that the "Header" check box is ticked as seen below. If your file does not contain column names, ensure this check box is un-ticked. <br>
 
 ```{r, echo=FALSE,  fig.align='center'}
@@ -46,6 +47,12 @@ The "Select Categorical Variables" box will show a drop down of all variables in
 ```{r, echo=FALSE, fig.align='center'}
 knitr::include_graphics("C:/GitHub Composite Test Statistic/Survival Pair.png")
 ```
+<br>
+
+A CSV file containing simulated data from the EMERGE clinical trial is provided below as an example for using this application.
+
+<a href="Simulated toy dataset - For tutorial.csv" download>Download Simulated EMERGE Data CSV</a>
+
 <span style="font-size:20px;">**Notes on Uploading Correlation Matrix**<br>
 
 For uploading the correlation matrix CSV, ensure that you upload only the correlation matrix  of the outcome variables of interest. Ensure that both row names and column names are included, as seen in the example format below. The individual test statistics must be calculated and uploaded manually by the user. <br>
@@ -58,11 +65,17 @@ The test statistic of each variable needs to be entered into the corresponding b
 ```{r, echo=FALSE, fig.align='center'}
 knitr::include_graphics("C:/GitHub Composite Test Statistic/SC-QC Tutorial CMTS Weights and TS.png")
 ```
+
+A CSV file containing the correlation matrix of the EMERGE clinical trial is provided below as an example for using this application.
+
+
+<a href="Example Correlation Matrix.csv" download>Download EMERGE Correlation Matrix CSV</a>
+
 <br>
 
 <span style="font-size:20px;">**General Settings** <br>
 
-The analysis settings tab allows the user to change some of the default settings of the analysis, including the level of significance ($\alpha$), the seed used for the simulations/permutations, and the sided-ness of the hypothesis test (relevant only for the summed composite(SC)). These settings can be accessed via the "Change Defaults" button in the Analysis Settings box, shown below.<br>
+The analysis settings tab allows the user to change some of the default settings of the analysis, including the level of significance ($\alpha$), the seed used for the simulations/permutations, and the sided-ness of the hypothesis test (for summed composite(SC) only). These settings can be accessed via the "Change Defaults" button in the Analysis Settings box, shown below.<br>
 
 
 ```{r, echo=FALSE, fig.align='center'}
@@ -72,16 +85,8 @@ knitr::include_graphics("C:/GitHub Composite Test Statistic/Analysis Settings .p
 
 <span style="font-size:20px;">**Notes on the Number of Permutations/Simulations**<br> 
 
-When choosing the number of permutations or simulations to run, two main factors should be considered: the complexity of the data and the desired precision of the p-value. Increasing the number of permutations improves the precision of the reported p-value, but also increases computational cost. Large datasets further amplify this burden, making very high numbers of permutations impractical. In practice, 500–1000 permutations are often sufficient for most analyses, though this depends on the desired level of significance. Asymptotic simulations are generally much more efficient than permutation testing, and therefore can accommodate larger numbers of replications.Trial and error may be required to determine how many permutations can be performed to obtain the most precise p-value possible.
+When choosing the number of permutations or simulations to run, three main factors should be considered: the complexity of the data, the desired precision of the p-value, and the level of significance at which the test will be evaluated. Increasing the number of permutations improves the precision of the estimated p-value but also increases computational cost. This burden is amplified with large datasets, making very high numbers of permutations impractical. Moreover, the lower the desired level of significance, the greater the number of permutations or simulations required to achieve adequate precision. In practice, 500–1000 permutations are often sufficient for most analyses, although the exact number depends on the specific test criteria. Asymptotic simulation approaches are generally more computationally efficient than permutation testing and can therefore accommodate a larger number of replications. Some trial and error may be required to determine how many permutations can be performed to obtain a sufficiently precise p-value.
 
-
-
-
-
-
-
-
-
-
-
-
+```{r, echo=FALSE, fig.align='center'}
+knitr::include_graphics("C:/GitHub Composite Test Statistic/NumberPermutations.png")
+```

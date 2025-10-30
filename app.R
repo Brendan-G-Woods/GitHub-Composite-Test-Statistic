@@ -32,7 +32,7 @@ html_tutorial <- paste(readLines("Tutorial.html"), collapse = "\n")
 
 ui <- dashboardPage(
   skin = "green",
-  dashboardHeader(title = "Test Statistic Composite"),
+  dashboardHeader(title = "Composite Test Statistic"),
   dashboardSidebar(
     sidebarMenu(id = "tab",
                 menuItem("Home",     tabName = "home",     icon = icon("home")),
@@ -104,15 +104,23 @@ ui <- dashboardPage(
                 box(
                   title       = "Analysis Settings", width = 12,
                   solidHeader = TRUE, status = "success",
+                  radioButtons("composite_selection", "Select Composite",
+                               choices = c("SC Composite" = "SC",
+                                           "QC Composite" = "QC")),
                   actionButton("settings", "Change Defaults", icon = icon("cogs")),
                   div(id = "settings_panel", style = "display: none;",
                       tags$hr(),
                       numericInput("set_seed", "Set Seed", value = 123, min = 1),
-                      radioButtons("tail_option", "Tail for SC p-value:",
-                                   choices = c("Lower-tailed" = "lower",
-                                               "Upper-tailed" = "upper",
-                                               "Two-tailed"   = "two"),
-                                   selected = "two"),
+                      conditionalPanel(
+                        condition = "input.composite_selection == 'SC'",
+                        radioButtons(
+                          "tail_option", "Tail for SC p-value:",
+                          choices  = c("Lower-tailed" = "lower",
+                                       "Upper-tailed" = "upper",
+                                       "Two-tailed"   = "two"),
+                          selected = "two"
+                        )
+                      ),
                       numericInput("alpha", "Significance Level (α)", value = 0.05, min = 0.001, max = 0.5)
                       
                   )
@@ -383,13 +391,18 @@ server <- function(input, output, session) {
     alpha = 0.05
   )
   
+  observeEvent(input$composite_selection, {
+    analysis_settings$composite <- input$composite_selection
+  }, ignoreNULL = TRUE)
+  
   observeEvent(input$set_seed, {
     analysis_settings$seed <- input$set_seed
   }, ignoreNULL = TRUE)
   
   observeEvent(input$tail_option, {
     analysis_settings$tail <- input$tail_option
-  }, ignoreNULL = TRUE)
+  }, ignoreNULL = TRUE, ignoreInit = TRUE)
+  
   
   observeEvent(input$alpha, {
     analysis_settings$alpha <- input$alpha
@@ -567,20 +580,27 @@ server <- function(input, output, session) {
     output_list <- list()
     asym <- asymptotic_result()
     perm <- permutation_result()
-    nsim <- isolate(input$n_sim) 
+    nsim  <- isolate(input$n_sim)
     nperm <- isolate(input$n_permutations)
+    sel   <- isolate(input$composite_selection) %||% "SC"  
     
     if (!is.null(asym)) {
       sc_pval <- if (asym$sc_pvalue < (1 / nsim)) sprintf("< %.1e", 1 / nsim) else sprintf("%.4g", asym$sc_pvalue)
       qc_pval <- if (asym$qc_pvalue < (1 / nsim)) sprintf("< %.1e", 1 / nsim) else sprintf("%.4g", asym$qc_pvalue)
       
+      df_asym <- data.frame(
+        `Composite Type` = c("Summed Test Statistic (SC)", "Squared Test Statistic (QC)"),
+        Value            = round(c(asym$sc_composite, asym$qc_composite), 4),
+        `p-value`        = c(sc_pval, qc_pval),
+        check.names = FALSE
+      )
+      
+      keep_row <- if (sel == "SC") 1 else 2
+      
       output$asymptotic_table <- renderDT({
-        datatable(data.frame(
-          `Composite Type` = c("Summed Test Statistic (SC)", "Squared Test Statistic (QC)"),
-          Value = round(c(asym$sc_composite, asym$qc_composite), 4),
-          `p-value` = c(sc_pval, qc_pval),
-          check.names = FALSE
-        ), options = list(dom = 't', paging = FALSE), rownames = FALSE)
+        datatable(df_asym[keep_row, , drop = FALSE],
+                  options = list(dom = 't', paging = FALSE),
+                  rownames = FALSE)
       })
       
       output_list <- append(output_list, list(
@@ -594,13 +614,19 @@ server <- function(input, output, session) {
       perm_sc_pval <- if (perm$sc_pvalue < (1 / nperm)) sprintf("< %.1e", 1 / nperm) else sprintf("%.4g", perm$sc_pvalue)
       perm_qc_pval <- if (perm$qc_pvalue < (1 / nperm)) sprintf("< %.1e", 1 / nperm) else sprintf("%.4g", perm$qc_pvalue)
       
+      df_perm <- data.frame(
+        `Composite Type` = c("Summed Test Statistic (SC)", "Squared Test Statistic (QC)"),
+        Value            = round(c(perm$sc_composite, perm$qc_composite), 4),
+        `p-value`        = c(perm_sc_pval, perm_qc_pval),
+        check.names = FALSE
+      )
+      
+      keep_row <- if (sel == "SC") 1 else 2
+      
       output$permutation_table <- renderDT({
-        datatable(data.frame(
-          `Composite Type` = c("Summed Test Statistic (SC)", "Squared Test Statistic (QC)"),
-          Value = round(c(perm$sc_composite, perm$qc_composite), 4),
-          `p-value` = c(perm_sc_pval, perm_qc_pval),
-          check.names = FALSE
-        ), options = list(dom = 't', paging = FALSE), rownames = FALSE)
+        datatable(df_perm[keep_row, , drop = FALSE],
+                  options = list(dom = 't', paging = FALSE),
+                  rownames = FALSE)
       })
       
       output_list <- append(output_list, list(
@@ -610,12 +636,12 @@ server <- function(input, output, session) {
       ))
     }
     
-    
     tagList(output_list)
   })
   
+  
   output$SC_Null_Hist <- renderPlot({
-    req(input$GetGraphs)
+    req(input$GetGraphs, input$composite_selection == "SC")
     asym <- asymptotic_result()
     perm <- permutation_result()
     plots <- list()
@@ -703,7 +729,7 @@ server <- function(input, output, session) {
   
   
   output$QC_Null_Hist <- renderPlot({
-    req(input$GetGraphs)
+    req(input$GetGraphs, input$composite_selection == "QC")
     asym <- asymptotic_result()
     perm <- permutation_result()
     plots <- list()
@@ -762,12 +788,11 @@ server <- function(input, output, session) {
   
   output$GraphOutput <- renderUI({
     req(input$GetGraphs)
-    tagList(
-      fluidRow(
-        column(6, plotOutput("SC_Null_Hist", height = "500px")),
-        column(6, plotOutput("QC_Null_Hist", height = "500px"))
-      )
-    )
+    if ((input$composite_selection %||% "SC") == "SC") {
+      fluidRow(column(12, plotOutput("SC_Null_Hist", height = "500px")))
+    } else {
+      fluidRow(column(12, plotOutput("QC_Null_Hist", height = "500px")))
+    }
   })
   ######################################################################
   

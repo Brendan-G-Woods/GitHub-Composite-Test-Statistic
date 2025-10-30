@@ -1,5 +1,5 @@
 ---
-title: "Test Statistic Composite"
+title: "Composite Test Statistic"
 author: ""
 date: ""
 output: html_document
@@ -11,7 +11,7 @@ body {
 
 </style>
 
-Welcome to the application for test statistic composites. Here we propose two methods of forming a composite test statistic;
+Welcome to the application for composite test statistics. Here we propose two methods of forming a composite test statistic;
 
 1. A composite formed by summing the test statistic of each variable ($SC$)
 $$ Summed\ Composite\ (SC) = w_1\cdot TS_1 + w_2\cdot TS_2 +  ... +w_K \cdot TS_K$$ <br>

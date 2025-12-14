@@ -12,7 +12,7 @@
 <meta name="author" content />
 
 
-<title>Composite Test Statistic</title>
+<title>Under The Hood</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -349,7 +349,7 @@ display: none;
 
 
 
-<h1 class="title toc-ignore">Composite Test Statistic</h1>
+<h1 class="title toc-ignore">Under The Hood</h1>
 <h4 class="author"></h4>
 
 </div>
@@ -360,99 +360,173 @@ body {
 text-align: left !important;
 }
 </style>
-<p>Welcome to the Composite Test Statistic Application. This page
-provides an intuitive and powerful alternative to traditional methods of
-defining and analysing composite outcomes.</p>
-<div id="an-introduction-to-composite-outcomes" class="section level2">
-<h2>An Introduction to Composite Outcomes</h2>
-<p>Composite outcomes are a popular method to compare treatment effects
-across multiple outcomes simultaneously. They are particularly useful
-when the primary outcomes are rare, or to avoid the inflation of type I
-error that is associated with multiple testing if multiple outcome
-variables are of interest.</p>
-<p>However, some traditional definitions of composite outcomes have a
-major drawback – typically subjects are classed as either a “success” or
-a “failure” based on whether any one of the component outcomes occurs.
-This definition of a composite requires the dichotomisation of
-continuous outcomes into binary indicators of “success” or “fail”, based
-on a clinically chosen threshold. This offers a simple solution to
-defining a composite with diverse types of components, but it has a
-serious flaw. Large amounts of information can be lost through this
-dichotomisation and therefore lead to substantial losses in statistical
-power (the ability to detect if there is a treatment effect).</p>
-</div>
-<div id="a-real-world-motivation-the-emerge-trial" class="section level2">
-<h2>A Real-World Motivation: The EMERGE Trial</h2>
-<p>The Early Metformin in Gestational Diabetes trial (EMERGE) was a key
-motivator for developing the composite test statistic method. The trial
-defined a composite based on whether a participant:</p>
+<div id="defining-the-composites" class="section level2">
+<h2>Defining the Composites</h2>
+<p>This app provides two methods of combining test statistics into a
+composite;</p>
 <ol style="list-style-type: decimal">
-<li><p>Required Insulin treatment</p></li>
-<li><p>Had a fasting glucose level <span class="math inline">\(\ge\)</span> 5.1 mmol/L at gestation week 32
-(gw32)</p></li>
-<li><p>Had a fasting glucose level <span class="math inline">\(\ge\)</span> 5.1 mmol/L at gestation week 38
-(gw38)</p></li>
+<li>A simple weighted sum of the test statistics (called summed
+composite (<span class="math inline">\(SC\)</span>))</li>
 </ol>
-<p>Both gw32 and gw38 involve the dichotomisation of fasting glucose, a
-continuous measurement, before entering the composite. This
-dichotomisation resulted in a large loss of information, and ultimately
-led to an insignificant composite primary outcome, even though each of
-the individual components differed significantly between treatment
-groups.</p>
-<p>This paradox, where we have significant individual outcomes but an
-insignificant composite outcome, highlights the issue of this
-traditional composite definition which can result in real treatment
-effects going undetected. This is due to the loss of information through
-the dichotomisation of continuous outcomes.</p>
+<p><span class="math display">\[ Summed\ Composite\ (SC) = w_1\cdot TS_1
++ w_2\cdot TS_2 +  ... +w_K \cdot TS_K\]</span> <br></p>
+<p>The SC definition is particularly useful when treatment effects are
+expected to act in the same direction across outcomes.<br></p>
+<ol start="2" style="list-style-type: decimal">
+<li>A weighted sum of the square of the test statistics (called squared
+composite (<span class="math inline">\(QC\)</span>))</li>
+</ol>
+<p><span class="math display">\[Squared\ Composite\ (QC)= w_1\cdot
+TS_1^2 +w_2\cdot TS_2^2 + ... +w_K\cdot TS_K^2\]</span><br></p>
+<p>The QC definition retains the strength of each effect regardless of
+individual outcomes direction and can handle a wider range of outcome
+types.</p>
+<p>Weights <span class="math inline">\(w_i\)</span> can be selected
+based on clinical relevance or to maximise power, on a case-by-case
+basis, or simply, equal weighting can be applied. <br></p>
 </div>
-<div id="how-composite-test-statistics-are-built-here" class="section level2">
-<h2>How Composite Test Statistics Are Built Here</h2>
-<p>To address this paradox, we propose a new definition of a composite
-that is simple to do but avoids dichotomisation entirely. Instead of
-collapsing continuous data into binary events, we propose defining the
-composite as a combination of test statistics calculated for each
-outcome (e.g. t-values, z-scores). Because test statistics (such as
-t-scores or z-scores) are standardised, they place outcomes of different
-types (continuous, categorical, time-to-event) on a common scale. This
-makes them directly comparable and maintains the underlying data in its
-natural form.</p>
-<p>The resulting composite test statistic can then be assessed using
-either:</p>
+<div id="calculating-test-statistics-for-individual-outcomes" class="section level2">
+<h2>Calculating Test Statistics for Individual Outcomes</h2>
+<p>The test statistics themselves are calculated using hypothesis
+testing comparing treatment groups. The type of test statistic depends
+on the type of data each outcome represents, and the number of treatment
+groups:</p>
+<div id="for-two-treatment-groups" class="section level3">
+<h3>For two treatment groups</h3>
 <ul>
-<li><p><strong>Permutation Testing,</strong> which provides an exact
-empirical null distribution.</p></li>
-<li><p><strong>Asymptotic simulations,</strong> which approximates known
-distributions.</p></li>
+<li><p>Continuous outcomes: Two-sample T-tests to produce
+T-statistics</p></li>
+<li><p>Binary outcomes: Two-sample T-tests to produce T-statistics.
+(Although two-sample z-tests are commonly applied to binary data, t- and
+z-statistics are asymptotically equivalent).</p></li>
+<li><p>Multilevel Categorical outcomes: Pearsons Chi-square test to
+produce <span class="math inline">\(\chi^2\)</span> statistics. The
+<span class="math inline">\(\chi^2\)</span> statistic is divided by its
+degrees of freedom (K-1), where K is the number of outcome
+categories.</p></li>
+<li><p>Survival Outcomes: Log-rank test to produce <span class="math inline">\(\chi^2\)</span> statistics with 1 degree of
+freedom.</p></li>
 </ul>
 </div>
-<div id="advantages-of-the-composite-test-statistic" class="section level2">
-<h2>Advantages of the Composite Test Statistic</h2>
-<p>In short, our composite test statistic improves power over
-traditional methods of forming composites comparing different data types
-and is readily useable for a diverse range of datasets. Compared with
-traditional methods of defining composite outcomes, this approach:</p>
+<div id="for-2-treatment-groups" class="section level3">
+<h3>For &gt;2 treatment Groups</h3>
 <ul>
-<li><p><strong>Preserves information,</strong> no dichotomisation is
-required, and continuous outcomes remain continuous</p></li>
-<li><p><strong>Higher power</strong> to detect significant treatment
-effects. Bootstrap power estimations that we performed comparing the
-composite test statistic method with the traditional definition used in
-EMERGE showed vast improvements, as demonstrated below.
-<img role="img" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0nMS4wJyBlbmNvZGluZz0nVVRGLTgnID8+CjxzdmcgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJyB4bWxuczp4bGluaz0naHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluaycgd2lkdGg9JzcyMC4wMHB0JyBoZWlnaHQ9JzUwNC4wMHB0JyB2aWV3Qm94PScwIDAgNzIwLjAwIDUwNC4wMCc+CjxnIGNsYXNzPSdzdmdsaXRlJz4KPGRlZnM+CiAgPHN0eWxlIHR5cGU9J3RleHQvY3NzJz48IVtDREFUQVsKICAgIC5zdmdsaXRlIGxpbmUsIC5zdmdsaXRlIHBvbHlsaW5lLCAuc3ZnbGl0ZSBwb2x5Z29uLCAuc3ZnbGl0ZSBwYXRoLCAuc3ZnbGl0ZSByZWN0LCAuc3ZnbGl0ZSBjaXJjbGUgewogICAgICBmaWxsOiBub25lOwogICAgICBzdHJva2U6ICMwMDAwMDA7CiAgICAgIHN0cm9rZS1saW5lY2FwOiByb3VuZDsKICAgICAgc3Ryb2tlLWxpbmVqb2luOiByb3VuZDsKICAgICAgc3Ryb2tlLW1pdGVybGltaXQ6IDEwLjAwOwogICAgfQogICAgLnN2Z2xpdGUgdGV4dCB7CiAgICAgIHdoaXRlLXNwYWNlOiBwcmU7CiAgICB9CiAgICAuc3ZnbGl0ZSBnLmdseXBoZ3JvdXAgcGF0aCB7CiAgICAgIGZpbGw6IGluaGVyaXQ7CiAgICAgIHN0cm9rZTogbm9uZTsKICAgIH0KICBdXT48L3N0eWxlPgo8L2RlZnM+CjxyZWN0IHdpZHRoPScxMDAlJyBoZWlnaHQ9JzEwMCUnIHN0eWxlPSdzdHJva2U6IG5vbmU7IGZpbGw6IG5vbmU7Jy8+CjxkZWZzPgogIDxjbGlwUGF0aCBpZD0nY3BNQzR3TUh3M01qQXVNREI4TUM0d01IdzFNRFF1TURBPSc+CiAgICA8cmVjdCB4PScwLjAwJyB5PScwLjAwJyB3aWR0aD0nNzIwLjAwJyBoZWlnaHQ9JzUwNC4wMCcgLz4KICA8L2NsaXBQYXRoPgo8L2RlZnM+CjxnIGNsaXAtcGF0aD0ndXJsKCNjcE1DNHdNSHczTWpBdU1EQjhNQzR3TUh3MU1EUXVNREE9KSc+CjwvZz4KPGRlZnM+CiAgPGNsaXBQYXRoIGlkPSdjcE5UY3VNRGQ4TnpFMExqVXlmREk1TGpRNWZEUXlNaTR3TUE9PSc+CiAgICA8cmVjdCB4PSc1Ny4wNycgeT0nMjkuNDknIHdpZHRoPSc2NTcuNDUnIGhlaWdodD0nMzkyLjUxJyAvPgogIDwvY2xpcFBhdGg+CjwvZGVmcz4KPGcgY2xpcC1wYXRoPSd1cmwoI2NwTlRjdU1EZDhOekUwTGpVeWZESTVMalE1ZkRReU1pNHdNQT09KSc+Cjxwb2x5bGluZSBwb2ludHM9JzU3LjA3LDQwNC4xNiA3MTQuNTIsNDA0LjE2ICcgc3R5bGU9J3N0cm9rZS13aWR0aDogMS4wNzsgc3Ryb2tlOiAjRUJFQkVCOyBzdHJva2UtbGluZWNhcDogYnV0dDsnIC8+Cjxwb2x5bGluZSBwb2ludHM9JzU3LjA3LDMxOS4yMCA3MTQuNTIsMzE5LjIwICcgc3R5bGU9J3N0cm9rZS13aWR0aDogMS4wNzsgc3Ryb2tlOiAjRUJFQkVCOyBzdHJva2UtbGluZWNhcDogYnV0dDsnIC8+Cjxwb2x5bGluZSBwb2ludHM9JzU3LjA3LDIzNC4yNCA3MTQuNTIsMjM0LjI0ICcgc3R5bGU9J3N0cm9rZS13aWR0aDogMS4wNzsgc3Ryb2tlOiAjRUJFQkVCOyBzdHJva2UtbGluZWNhcDogYnV0dDsnIC8+Cjxwb2x5bGluZSBwb2ludHM9JzU3LjA3LDE0OS4yOCA3MTQuNTIsMTQ5LjI4ICcgc3R5bGU9J3N0cm9rZS13aWR0aDogMS4wNzsgc3Ryb2tlOiAjRUJFQkVCOyBzdHJva2UtbGluZWNhcDogYnV0dDsnIC8+Cjxwb2x5bGluZSBwb2ludHM9JzU3LjA3LDY0LjMyIDcxNC41Miw2NC4zMiAnIHN0eWxlPSdzdHJva2Utd2lkdGg6IDEuMDc7IHN0cm9rZTogI0VCRUJFQjsgc3Ryb2tlLWxpbmVjYXA6IGJ1dHQ7JyAvPgo8cG9seWxpbmUgcG9pbnRzPScxNDcuMzEsNDIyLjAwIDE0Ny4zMSwyOS40OSAnIHN0eWxlPSdzdHJva2Utd2lkdGg6IDEuMDc7IHN0cm9rZTogI0VCRUJFQjsgc3Ryb2tlLWxpbmVjYXA6IGJ1dHQ7JyAvPgo8cG9seWxpbmUgcG9pbnRzPScyNzYuMjIsNDIyLjAwIDI3Ni4yMiwyOS40OSAnIHN0eWxlPSdzdHJva2Utd2lkdGg6IDEuMDc7IHN0cm9rZTogI0VCRUJFQjsgc3Ryb2tlLWxpbmVjYXA6IGJ1dHQ7JyAvPgo8cG9seWxpbmUgcG9pbnRzPSc0MDUuMTMsNDIyLjAwIDQwNS4xMywyOS40OSAnIHN0eWxlPSdzdHJva2Utd2lkdGg6IDEuMDc7IHN0cm9rZTogI0VCRUJFQjsgc3Ryb2tlLWxpbmVjYXA6IGJ1dHQ7JyAvPgo8cG9seWxpbmUgcG9pbnRzPSc1MzQuMDQsNDIyLjAwIDUzNC4wNCwyOS40OSAnIHN0eWxlPSdzdHJva2Utd2lkdGg6IDEuMDc7IHN0cm9rZTogI0VCRUJFQjsgc3Ryb2tlLWxpbmVjYXA6IGJ1dHQ7JyAvPgo8cG9seWxpbmUgcG9pbnRzPSc2NjIuOTYsNDIyLjAwIDY2Mi45NiwyOS40OSAnIHN0eWxlPSdzdHJva2Utd2lkdGg6IDEuMDc7IHN0cm9rZTogI0VCRUJFQjsgc3Ryb2tlLWxpbmVjYXA6IGJ1dHQ7JyAvPgo8cG9seWxpbmUgcG9pbnRzPSc1Ny4wNywzNDEuMjkgNjkuOTYsMzEwLjcxIDgyLjg1LDI5OC44MSA5NS43NCwyOTIuMDEgMTA4LjYzLDI2OS45MyAxMjEuNTIsMjU4LjAzIDEzNC40MSwyMzQuMjQgMTQ3LjMxLDIwOC43NiAxNjAuMjAsMjA4Ljc2IDE3My4wOSwyMTIuMTUgMTg1Ljk4LDE4OC4zNiAxOTguODcsMTYxLjE4IDIxMS43NiwxNzEuMzcgMjI0LjY1LDE1NC4zOCAyMzcuNTQsMTUwLjk4IDI1MC40NCwxMzUuNjkgMjYzLjMzLDEzMy45OSAyNzYuMjIsMTEzLjYwIDI4OS4xMSwxMjAuNDAgMzAyLjAwLDExMS45MCAzMTQuODksMTExLjkwIDMyNy43OCw5Ni42MSAzNDAuNjcsMTAwLjAxIDM1My41NywxMDUuMTEgMzY2LjQ2LDk0LjkxIDM3OS4zNSw4OC4xMSAzOTIuMjQsODEuMzIgNDA1LjEzLDgxLjMyIDQxOC4wMiw3NC41MiA0MzAuOTEsNzIuODIgNDQzLjgwLDY5LjQyIDQ1Ni43MCw3Mi44MiA0NjkuNTksNjkuNDIgNDgyLjQ4LDc2LjIyIDQ5NS4zNyw3NC41MiA1MDguMjYsNzEuMTIgNTIxLjE1LDY2LjAyIDUzNC4wNCw2Ni4wMiA1NDYuOTMsNjQuMzIgNTU5LjgzLDY2LjAyIDU3Mi43Miw2Ny43MiA1ODUuNjEsNjYuMDIgNTk4LjUwLDY3LjcyIDYxMS4zOSw2Ni4wMiA2MjQuMjgsNjQuMzIgNjM3LjE3LDY2LjAyIDY1MC4wNiw2Ni4wMiA2NjIuOTYsNjQuMzIgNjc1Ljg1LDY0LjMyIDY4OC43NCw2Ni4wMiA3MDEuNjMsNjQuMzIgNzE0LjUyLDY0LjMyICcgc3R5bGU9J3N0cm9rZS13aWR0aDogMy4yMDsgc3Ryb2tlLWxpbmVjYXA6IGJ1dHQ7JyAvPgo8cG9seWxpbmUgcG9pbnRzPSc1Ny4wNywzMzYuMTkgNjkuOTYsMzAyLjIxIDgyLjg1LDI4My41MiA5NS43NCwyODYuOTIgMTA4LjYzLDI1OS43MyAxMjEuNTIsMjU0LjYzIDEzNC40MSwyMjkuMTUgMTQ3LjMxLDIwMC4yNiAxNjAuMjAsMjA1LjM2IDE3My4wOSwxOTUuMTYgMTg1Ljk4LDE4Ni42NyAxOTguODcsMTYxLjE4IDIxMS43NiwxNzEuMzcgMjI0LjY1LDE0Ny41OCAyMzcuNTQsMTUwLjk4IDI1MC40NCwxMjcuMTkgMjYzLjMzLDEyMi4xMCAyNzYuMjIsMTA1LjExIDI4OS4xMSwxMTMuNjAgMzAyLjAwLDEwOC41MCAzMTQuODksMTE1LjMwIDMyNy43OCw5Ni42MSAzNDAuNjcsMTA1LjExIDM1My41NywxMDUuMTEgMzY2LjQ2LDEwMC4wMSAzNzkuMzUsODYuNDEgMzkyLjI0LDc3LjkyIDQwNS4xMyw3OS42MiA0MTguMDIsNzYuMjIgNDMwLjkxLDcxLjEyIDQ0My44MCw3MS4xMiA0NTYuNzAsNzYuMjIgNDY5LjU5LDY3LjcyIDQ4Mi40OCw3MS4xMiA0OTUuMzcsNzIuODIgNTA4LjI2LDY5LjQyIDUyMS4xNSw2Ny43MiA1MzQuMDQsNjYuMDIgNTQ2LjkzLDY0LjMyIDU1OS44Myw2Ny43MiA1NzIuNzIsNjcuNzIgNTg1LjYxLDY2LjAyIDU5OC41MCw2Ni4wMiA2MTEuMzksNjYuMDIgNjI0LjI4LDY0LjMyIDYzNy4xNyw2Ni4wMiA2NTAuMDYsNjYuMDIgNjYyLjk2LDY2LjAyIDY3NS44NSw2Ni4wMiA2ODguNzQsNjQuMzIgNzAxLjYzLDY0LjMyIDcxNC41Miw2NC4zMiAnIHN0eWxlPSdzdHJva2Utd2lkdGg6IDMuMjA7IHN0cm9rZS1saW5lY2FwOiBidXR0OycgLz4KPHBvbHlsaW5lIHBvaW50cz0nNTcuMDcsMzgyLjA3IDY5Ljk2LDM4Mi4wNyA4Mi44NSwzODAuMzcgOTUuNzQsMzc1LjI3IDEwOC42MywzNjYuNzggMTIxLjUyLDM1OS45OCAxMzQuNDEsMzU0Ljg4IDE0Ny4zMSwzNjEuNjggMTYwLjIwLDM2Ni43OCAxNzMuMDksMzUzLjE5IDE4NS45OCwzNDkuNzkgMTk4Ljg3LDMzNi4xOSAyMTEuNzYsMzM3Ljg5IDIyNC42NSwzMzcuODkgMjM3LjU0LDMzOS41OSAyNTAuNDQsMzIyLjYwIDI2My4zMywzNDQuNjkgMjc2LjIyLDMwNy4zMSAyODkuMTEsMzMxLjEwIDMwMi4wMCwzMzYuMTkgMzE0Ljg5LDMzMS4xMCAzMjcuNzgsMzEwLjcxIDM0MC42NywzMjAuOTAgMzUzLjU3LDMwNS42MSAzNjYuNDYsMzE3LjUwIDM3OS4zNSwyOTcuMTEgMzkyLjI0LDI5NS40MSA0MDUuMTMsMjg2LjkyIDQxOC4wMiwyOTcuMTEgNDMwLjkxLDI3My4zMiA0NDMuODAsMjg2LjkyIDQ1Ni43MCwzMTIuNDAgNDY5LjU5LDMxMi40MCA0ODIuNDgsMjkwLjMyIDQ5NS4zNywyODMuNTIgNTA4LjI2LDI3OC40MiA1MjEuMTUsMjg2LjkyIDUzNC4wNCwyNTkuNzMgNTQ2LjkzLDI2OS45MyA1NTkuODMsMjMwLjg0IDU3Mi43MiwyNTIuOTMgNTg1LjYxLDI0OS41NCA1OTguNTAsMjY2LjUzIDYxMS4zOSwyNDkuNTQgNjI0LjI4LDI1Ni4zMyA2MzcuMTcsMjM1Ljk0IDY1MC4wNiwyMTUuNTUgNjYyLjk2LDI0NC40NCA2NzUuODUsMjU4LjAzIDY4OC43NCwyMjIuMzUgNzAxLjYzLDIyNC4wNSA3MTQuNTIsMjI0LjA1ICcgc3R5bGU9J3N0cm9rZS13aWR0aDogMy4yMDsgc3Ryb2tlOiAjMDBGRjAwOyBzdHJva2UtbGluZWNhcDogYnV0dDsnIC8+Cjxwb2x5bGluZSBwb2ludHM9JzU3LjA3LDMzOS41OSA2OS45NiwzMDcuMzEgODIuODUsMjk4LjgxIDk1Ljc0LDI4Ni45MiAxMDguNjMsMjY0LjgzIDEyMS41MiwyNTguMDMgMTM0LjQxLDIzNC4yNCAxNDcuMzEsMjA3LjA2IDE2MC4yMCwyMDguNzYgMTczLjA5LDIwNy4wNiAxODUuOTgsMTg2LjY3IDE5OC44NywxNTkuNDggMjExLjc2LDE2Ny45NyAyMjQuNjUsMTU0LjM4IDIzNy41NCwxNDkuMjggMjUwLjQ0LDEzMy45OSAyNjMuMzMsMTMzLjk5IDI3Ni4yMiwxMTMuNjAgMjg5LjExLDEyMC40MCAzMDIuMDAsMTExLjkwIDMxNC44OSwxMTAuMjAgMzI3Ljc4LDk0LjkxIDM0MC42NywxMDAuMDEgMzUzLjU3LDEwNS4xMSAzNjYuNDYsOTEuNTEgMzc5LjM1LDg4LjExIDM5Mi4yNCw4MS4zMiA0MDUuMTMsNzkuNjIgNDE4LjAyLDc0LjUyIDQzMC45MSw3Mi44MiA0NDMuODAsNjkuNDIgNDU2LjcwLDcyLjgyIDQ2OS41OSw2OS40MiA0ODIuNDgsNzQuNTIgNDk1LjM3LDc0LjUyIDUwOC4yNiw2OS40MiA1MjEuMTUsNjYuMDIgNTM0LjA0LDY2LjAyIDU0Ni45Myw2NC4zMiA1NTkuODMsNjYuMDIgNTcyLjcyLDY3LjcyIDU4NS42MSw2Ni4wMiA1OTguNTAsNjcuNzIgNjExLjM5LDY2LjAyIDYyNC4yOCw2NC4zMiA2MzcuMTcsNjYuMDIgNjUwLjA2LDY2LjAyIDY2Mi45Niw2NC4zMiA2NzUuODUsNjQuMzIgNjg4Ljc0LDY2LjAyIDcwMS42Myw2NC4zMiA3MTQuNTIsNjQuMzIgJyBzdHlsZT0nc3Ryb2tlLXdpZHRoOiAzLjIwOyBzdHJva2UtbGluZWNhcDogYnV0dDsnIC8+Cjxwb2x5bGluZSBwb2ludHM9JzU3LjA3LDMzNi4xOSA2OS45NiwyOTguODEgODIuODUsMjc4LjQyIDk1Ljc0LDI4NS4yMiAxMDguNjMsMjU4LjAzIDEyMS41MiwyNTIuOTMgMTM0LjQxLDIyMC42NSAxNDcuMzEsMTk4LjU2IDE2MC4yMCwxOTguNTYgMTczLjA5LDE4Ni42NyAxODUuOTgsMTczLjA3IDE5OC44NywxNTcuNzggMjExLjc2LDE1OS40OCAyMjQuNjUsMTQ3LjU4IDIzNy41NCwxNDkuMjggMjUwLjQ0LDEyNS41MCAyNjMuMzMsMTE3LjAwIDI3Ni4yMiwxMDEuNzEgMjg5LjExLDExMS45MCAzMDIuMDAsMTAxLjcxIDMxNC44OSwxMTMuNjAgMzI3Ljc4LDk0LjkxIDM0MC42NywxMDEuNzEgMzUzLjU3LDEwMy40MSAzNjYuNDYsOTguMzEgMzc5LjM1LDg2LjQxIDM5Mi4yNCw3Ni4yMiA0MDUuMTMsNzkuNjIgNDE4LjAyLDc0LjUyIDQzMC45MSw3MS4xMiA0NDMuODAsNzEuMTIgNDU2LjcwLDc2LjIyIDQ2OS41OSw2Ny43MiA0ODIuNDgsNzEuMTIgNDk1LjM3LDcyLjgyIDUwOC4yNiw2OS40MiA1MjEuMTUsNjcuNzIgNTM0LjA0LDY2LjAyIDU0Ni45Myw2NC4zMiA1NTkuODMsNjcuNzIgNTcyLjcyLDY2LjAyIDU4NS42MSw2Ni4wMiA1OTguNTAsNjQuMzIgNjExLjM5LDY2LjAyIDYyNC4yOCw2NC4zMiA2MzcuMTcsNjQuMzIgNjUwLjA2LDY2LjAyIDY2Mi45Niw2Ni4wMiA2NzUuODUsNjYuMDIgNjg4Ljc0LDY0LjMyIDcwMS42Myw2NC4zMiA3MTQuNTIsNjQuMzIgJyBzdHlsZT0nc3Ryb2tlLXdpZHRoOiAzLjIwOyBzdHJva2UtbGluZWNhcDogYnV0dDsnIC8+CjwvZz4KPGcgY2xpcC1wYXRoPSd1cmwoI2NwTUM0d01IdzNNakF1TURCOE1DNHdNSHcxTURRdU1EQT0pJz4KPHRleHQgeD0nNTIuMTQnIHk9JzQwOS4xNycgdGV4dC1hbmNob3I9J2VuZCcgc3R5bGU9J2ZvbnQtc2l6ZTogMTQuMDBweDtmaWxsOiAjNEQ0RDREOyBmb250LWZhbWlseTogIkFyaWFsIjsnIHRleHRMZW5ndGg9JzI3LjIzcHgnIGxlbmd0aEFkanVzdD0nc3BhY2luZ0FuZEdseXBocyc+MC4wMDwvdGV4dD4KPHRleHQgeD0nNTIuMTQnIHk9JzMyNC4yMScgdGV4dC1hbmNob3I9J2VuZCcgc3R5bGU9J2ZvbnQtc2l6ZTogMTQuMDBweDtmaWxsOiAjNEQ0RDREOyBmb250LWZhbWlseTogIkFyaWFsIjsnIHRleHRMZW5ndGg9JzI3LjIzcHgnIGxlbmd0aEFkanVzdD0nc3BhY2luZ0FuZEdseXBocyc+MC4yNTwvdGV4dD4KPHRleHQgeD0nNTIuMTQnIHk9JzIzOS4yNScgdGV4dC1hbmNob3I9J2VuZCcgc3R5bGU9J2ZvbnQtc2l6ZTogMTQuMDBweDtmaWxsOiAjNEQ0RDREOyBmb250LWZhbWlseTogIkFyaWFsIjsnIHRleHRMZW5ndGg9JzI3LjIzcHgnIGxlbmd0aEFkanVzdD0nc3BhY2luZ0FuZEdseXBocyc+MC41MDwvdGV4dD4KPHRleHQgeD0nNTIuMTQnIHk9JzE1NC4yOScgdGV4dC1hbmNob3I9J2VuZCcgc3R5bGU9J2ZvbnQtc2l6ZTogMTQuMDBweDtmaWxsOiAjNEQ0RDREOyBmb250LWZhbWlseTogIkFyaWFsIjsnIHRleHRMZW5ndGg9JzI3LjIzcHgnIGxlbmd0aEFkanVzdD0nc3BhY2luZ0FuZEdseXBocyc+MC43NTwvdGV4dD4KPHRleHQgeD0nNTIuMTQnIHk9JzY5LjM0JyB0ZXh0LWFuY2hvcj0nZW5kJyBzdHlsZT0nZm9udC1zaXplOiAxNC4wMHB4O2ZpbGw6ICM0RDRENEQ7IGZvbnQtZmFtaWx5OiAiQXJpYWwiOycgdGV4dExlbmd0aD0nMjcuMjNweCcgbGVuZ3RoQWRqdXN0PSdzcGFjaW5nQW5kR2x5cGhzJz4xLjAwPC90ZXh0Pgo8dGV4dCB4PScxNDcuMzEnIHk9JzQzNi45NicgdGV4dC1hbmNob3I9J21pZGRsZScgc3R5bGU9J2ZvbnQtc2l6ZTogMTQuMDBweDtmaWxsOiAjNEQ0RDREOyBmb250LWZhbWlseTogIkFyaWFsIjsnIHRleHRMZW5ndGg9JzIzLjM0cHgnIGxlbmd0aEFkanVzdD0nc3BhY2luZ0FuZEdseXBocyc+MTAwPC90ZXh0Pgo8dGV4dCB4PScyNzYuMjInIHk9JzQzNi45NicgdGV4dC1hbmNob3I9J21pZGRsZScgc3R5bGU9J2ZvbnQtc2l6ZTogMTQuMDBweDtmaWxsOiAjNEQ0RDREOyBmb250LWZhbWlseTogIkFyaWFsIjsnIHRleHRMZW5ndGg9JzIzLjM0cHgnIGxlbmd0aEFkanVzdD0nc3BhY2luZ0FuZEdseXBocyc+MjAwPC90ZXh0Pgo8dGV4dCB4PSc0MDUuMTMnIHk9JzQzNi45NicgdGV4dC1hbmNob3I9J21pZGRsZScgc3R5bGU9J2ZvbnQtc2l6ZTogMTQuMDBweDtmaWxsOiAjNEQ0RDREOyBmb250LWZhbWlseTogIkFyaWFsIjsnIHRleHRMZW5ndGg9JzIzLjM0cHgnIGxlbmd0aEFkanVzdD0nc3BhY2luZ0FuZEdseXBocyc+MzAwPC90ZXh0Pgo8dGV4dCB4PSc1MzQuMDQnIHk9JzQzNi45NicgdGV4dC1hbmNob3I9J21pZGRsZScgc3R5bGU9J2ZvbnQtc2l6ZTogMTQuMDBweDtmaWxsOiAjNEQ0RDREOyBmb250LWZhbWlseTogIkFyaWFsIjsnIHRleHRMZW5ndGg9JzIzLjM0cHgnIGxlbmd0aEFkanVzdD0nc3BhY2luZ0FuZEdseXBocyc+NDAwPC90ZXh0Pgo8dGV4dCB4PSc2NjIuOTYnIHk9JzQzNi45NicgdGV4dC1hbmNob3I9J21pZGRsZScgc3R5bGU9J2ZvbnQtc2l6ZTogMTQuMDBweDtmaWxsOiAjNEQ0RDREOyBmb250LWZhbWlseTogIkFyaWFsIjsnIHRleHRMZW5ndGg9JzIzLjM0cHgnIGxlbmd0aEFkanVzdD0nc3BhY2luZ0FuZEdseXBocyc+NTAwPC90ZXh0Pgo8dGV4dCB4PSczODUuNzknIHk9JzQ1NS41MycgdGV4dC1hbmNob3I9J21pZGRsZScgc3R5bGU9J2ZvbnQtc2l6ZTogMTguMDBweDsgZm9udC1mYW1pbHk6ICJBcmlhbCI7JyB0ZXh0TGVuZ3RoPScxMDEuMDZweCcgbGVuZ3RoQWRqdXN0PSdzcGFjaW5nQW5kR2x5cGhzJz5TYW1wbGUgU2l6ZTwvdGV4dD4KPHRleHQgdHJhbnNmb3JtPSd0cmFuc2xhdGUoMTguMzcsMjI1Ljc1KSByb3RhdGUoLTkwKScgdGV4dC1hbmNob3I9J21pZGRsZScgc3R5bGU9J2ZvbnQtc2l6ZTogMTguMDBweDsgZm9udC1mYW1pbHk6ICJBcmlhbCI7JyB0ZXh0TGVuZ3RoPSc1MS4wM3B4JyBsZW5ndGhBZGp1c3Q9J3NwYWNpbmdBbmRHbHlwaHMnPlBvd2VyPC90ZXh0Pgo8bGluZSB4MT0nMTI2LjQ1JyB5MT0nNDg0LjQwJyB4Mj0nMTUwLjM2JyB5Mj0nNDg0LjQwJyBzdHlsZT0nc3Ryb2tlLXdpZHRoOiAzLjIwOyBzdHJva2UtbGluZWNhcDogYnV0dDsnIC8+CjxsaW5lIHgxPSc0NjguNzgnIHkxPSc0ODQuNDAnIHgyPSc0OTIuNjknIHkyPSc0ODQuNDAnIHN0eWxlPSdzdHJva2Utd2lkdGg6IDMuMjA7IHN0cm9rZTogIzAwRkYwMDsgc3Ryb2tlLWxpbmVjYXA6IGJ1dHQ7JyAvPgo8dGV4dCB4PScxNTguODMnIHk9JzQ4OS40MScgc3R5bGU9J2ZvbnQtc2l6ZTogMTQuMDBweDsgZm9udC13ZWlnaHQ6IGJvbGQ7IGZvbnQtZmFtaWx5OiAiQXJpYWwiOycgdGV4dExlbmd0aD0nMzAxLjQ4cHgnIGxlbmd0aEFkanVzdD0nc3BhY2luZ0FuZEdseXBocyc+Q29tcG9zaXRlIFRlc3QgU3RhdGlzdGljIE1ldGhvZHMgICAgICAgICAgICAgICAgICAgIDwvdGV4dD4KPHRleHQgeD0nNTAxLjE2JyB5PSc0ODkuNDEnIHN0eWxlPSdmb250LXNpemU6IDE0LjAwcHg7IGZvbnQtd2VpZ2h0OiBib2xkOyBmb250LWZhbWlseTogIkFyaWFsIjsnIHRleHRMZW5ndGg9JzE0Ni45N3B4JyBsZW5ndGhBZGp1c3Q9J3NwYWNpbmdBbmRHbHlwaHMnPlRyYWRpdGlvbmFsIENvbXBvc2l0ZTwvdGV4dD4KPHRleHQgeD0nMzg1Ljc5JyB5PScxOS44MCcgdGV4dC1hbmNob3I9J21pZGRsZScgc3R5bGU9J2ZvbnQtc2l6ZTogMjAuMDBweDsgZm9udC13ZWlnaHQ6IGJvbGQ7IGZvbnQtZmFtaWx5OiAiQXJpYWwiOycgdGV4dExlbmd0aD0nNTA3Ljg4cHgnIGxlbmd0aEFkanVzdD0nc3BhY2luZ0FuZEdseXBocyc+Q29tcGFyaW5nIFBvd2VyIG9mIENvbXBvc2l0ZSBNZXRob2RzIGluIEVNRVJHRTwvdGV4dD4KPC9nPgo8L2c+Cjwvc3ZnPgo=" width="80%" style="display: block; margin: auto;" /></p></li>
-<li><p><strong>Intuitive and statistically sound,</strong> permutation
-testing provides exact control of type I error, while the asymptotic
-approach provides scalability to larger data sets.</p></li>
-<li><p><strong>Applicable to mixed data sets,</strong> we have expanded
-the concept of the composite test statistic to be able to handle
-categorical data and survival analyses.</p></li>
-<li><p><strong>Transparent and Generalisable,</strong> this method can
-be applied to a range of studies and is not limited to the world of
-clinical trials. Additionally, we have provided the source code for this
-application, which is available in the “Source Code” tab.</p></li>
+<li><p>Continuous outcomes: Welch’s one-way analysis of variance is
+used, producing an F-statistic. To account for the dependence of the
+F-statistic on the number of treatment groups, the statistic is
+normalised by dividing by the degrees of freedom (G − 1)</p></li>
+<li><p>Binary outcomes: Welch’s one-way analysis of variance is used,
+producing an F-statistic. To account for the dependence of the
+F-statistic on the number of treatment groups, the statistic is
+normalised by dividing by the degrees of freedom (G − 1), where G is the
+number of treatment groups.</p></li>
+<li><p>Multilevel Categorical outcomes: Pearson’s chi-square test is
+used to produce <span class="math inline">\(\chi^2\)</span> statistics.
+The resulting <span class="math inline">\(\chi^2\)</span> statistic is
+normalised by dividing by its degrees of freedom, (G − 1)(K − 1), where
+K is the number of outcome categories and G is the number of treatment
+groups.</p></li>
+<li><p>Survival Outcomes: Log-rank test to produce <span class="math inline">\(\chi^2\)</span> statistics. The resulting <span class="math inline">\(\chi^2\)</span> statistic is normalised by
+dividing by its degrees of freedom, (G − 1), where G is the number of
+treatment groups.</p></li>
 </ul>
-<p>For more detail, the ‘Under the Hood’ tab dives deeper into
-permutation testing, defining and calculating the composite, and
-asymptotic theory.</p>
+<p>These test statistics are calculated under the null hypothesis that
+there is no treatment effect.The <span class="math inline">\(\chi^2\)</span> statistics are normalised by their
+degrees of freedom so that statistics from outcomes with different
+numbers of categories or groups are on a comparable scale.</p>
+<p>Naturally, the type of data and the number of treatment groups being
+compared influence how the composite can be defined and analysed. When
+more than two treatment groups are present, or when categorical (≥2
+levels) or time-to-event outcomes are included, only the squared
+composite <span class="math inline">\(QC\)</span> is available. In these
+settings, the underlying test statistics are available only in squared
+<span class="math inline">\(\chi^2\)</span> form, and asymptotic
+simulation becomes impractical. Consequently, such composites are
+analysed using permutation testing.</p>
+</div>
+</div>
+<div id="assessing-significance" class="section level2">
+<h2>Assessing Significance</h2>
+<p>Once the composite test statistic is formed, we must assess whether
+the observed composite is significant under the null hypothesis. Here we
+have two approaches, permutation testing and asymptotic
+distributions.</p>
+<div id="permutation-testing" class="section level3">
+<h3>Permutation testing</h3>
+<p>Permutation testing is a randomization-based method for hypothesis
+testing that is a powerful and widely used statistical tool in various
+fields. It is an intuitive method that can be readily applied to our
+proposed composites and offers exact control of type I error rates.</p>
+<p>The first step of the procedure involves calculating the relevant
+test statistics from the original data, which are then combined as per
+our chosen composite definition. Next, we permute the treatment label
+across individuals, by using sampling without replacement. This
+effectively destroys the relationship between the treatment and the
+outcomes, while preserving the relationships among outcomes within
+individuals. The same test statistics and composites are recalculated on
+this permuted data set. This process is performed repeatedly to generate
+a distribution of composite test statistics under the null hypothesis.
+The p-value is calculated as the proportion of the permuted composite
+test statistics that are more extreme than the observed composite test
+statistic.</p>
+<p>Increasing the number of permutations increases the precision of the
+p-value but also increases computational effort. This trade-off needs to
+be taken into consideration, particularly in larger or more complex
+datasets, where reducing the number of permutations may be necessary due
+to computational constraints. Generally, 500-1000 permutations is
+considered acceptable, although this depends on the level of
+significance, the complexity of the dataset, and the number of
+observations available.</p>
+</div>
+<div id="asymptotic-distributions" class="section level3">
+<h3>Asymptotic Distributions</h3>
+<p>The second method of analysing our composites involves deriving and
+simulating asymptotic null distributions for the composite test
+statistics derived via asymptotic arguments. The asymptotic distribution
+of a statistic is its distribution as sample size increase towards
+infinity, with many statistics converging on known distributions
+e.g. normal or chi-square distributions. This enables us to approximate
+the distribution of our composite test statistics. Simulating the
+asymptotic null of the summed composite first requires estimating the
+covariance matrix <span class="math inline">\(\hat{\Sigma}\)</span> of
+the K test statistics, using the correlation matrix of the outcomes from
+individuals with complete observations. This assumes that each <span class="math inline">\(TS_i\)</span> is asymptotically normal. Next, we
+defined a multivariate normal distribution with <span class="math inline">\(\mu = 0\)</span> and covariance matrix <span class="math inline">\(\hat{\Sigma}\)</span>, from which we generate many
+random samples.</p>
+<p>The asymptotic distribution of the summed composite (SC) under the
+null hypothesis is outlined below:</p>
+<p><span class="math display">\[
+Summed Composite\ (SC) \approx\ \mathcal{N}\!\left(0,\; \mathbf{w}^\top
+\boldsymbol{\Sigma}\, \mathbf{w}\right)
+\]</span></p>
+<p>Where the vector of weights <span class="math inline">\(\mathbf{w}\)</span> is the weights assigned to
+each test statistic when forming the composite.</p>
+<p>For the squared composite test statistic, samples are drawn from a
+chi-square distribution. If the outcomes were independent and normally
+distributed, the resulting composite of the squared test statistics
+would be chi-square distributed with K degrees of freedom. However,
+often the test statistics are correlated, and so the composite will not
+follow a standard chi-square distribution. This is accounted for by
+decomposing the covariance matrix <span class="math inline">\(\Sigma\)</span> into its eigenvalues and applying
+these as weights to independent chi-squared random variables <span class="math inline">\(\chi^2_i\)</span> with one degree of freedom, as
+outlined below.</p>
+<p><span class="math display">\[
+Squared\ Composite\ (QC)\ \approx\ \sum_{i=1}^{K} \lambda_i \cdot
+\chi^2_{\mathrm{df}=1,i}
+\]</span></p>
+<p>Where <span class="math inline">\(\lambda_i\)</span> are the
+eigenvalues of the covariance matrix <span class="math inline">\(\Sigma\)</span>, and K are the number of test
+statistics forming the composite.</p>
+<p>In this application, asymptotic simulations are only available for
+composites formed from approximately normal test statistics, such as
+t-statistics. This is because these distributions can be directly
+asymptotically simulated.</p>
+<p>For composites formed from squared test statistics (e.g. chi-square
+or log-rank statistics), the null distribution is a weighted sum of
+correlated chi-square variables. These distributions are much more
+difficult to approximate and therefore such composites are analysed
+using permutation testing.</p>
+</div>
 </div>
 
 

@@ -11,23 +11,55 @@ body {
 
 </style>
 
-Welcome to the application for composite test statistics. Here we propose two methods of forming a composite test statistic;
+Welcome to the Composite Test Statistic Application. This page provides an intuitive and powerful alternative to traditional methods of defining and analysing composite outcomes.
 
-1. A composite formed by summing the test statistic of each variable ($SC$)
-$$ Summed\ Composite\ (SC) = w_1\cdot TS_1 + w_2\cdot TS_2 +  ... +w_K \cdot TS_K$$ <br>
-Particularly useful when treatment effects are expected to act in the same direction across outcomes<br>
+## An Introduction to Composite Outcomes
 
-2. A composite formed by summing the square of the test statistic of each variable ($QC$)<br>
-$$Squared\ Composite\ (QC)= w_1\cdot TS_1^2 +w_2\cdot TS_2^2 + ... +w_K\cdot TS_K^2$$<br>
-Retains the strength of each effect regardless of individual outcomes direction and can handle a wider range of outcome types
+Composite outcomes are a popular method to compare treatment effects across multiple outcomes simultaneously. They are particularly useful when the primary outcomes are rare, or to avoid the inflation of type I error that is associated with multiple testing if multiple outcome variables are of interest. 
 
-This application allows the analysis of  both types of composites using asymptotic theory and permutation testing for binary and continuous outcomes. Other types of outcomes such as categorical and survival data, as well as comparing more than two treatment groups can also be assessed, although only in the squared (QC) form using permutation testing.<br><br>
+However, some traditional definitions of composite outcomes have a major drawback – typically subjects are classed as either a “success” or a “failure” based on whether any one of the component outcomes occurs. This definition of a composite requires the dichotomisation of continuous outcomes into binary indicators of “success” or “fail”, based on a clinically chosen threshold. This offers a simple solution to defining a composite with diverse types of components, but it has a serious flaw. Large amounts of information can be lost through this dichotomisation and therefore lead to substantial losses in statistical power (the ability to detect if there is a treatment effect). 
+
+## A Real-World Motivation: The EMERGE Trial
+
+The Early Metformin in Gestational Diabetes trial (EMERGE) was a key motivator for developing the composite test statistic method. The trial defined a composite based on whether a participant:
+
+ 1. Required Insulin treatment
+ 
+ 2. Had a fasting glucose level $\ge$ 5.1 mmol/L at gestation week 32 (gw32)
+ 
+ 3. Had a fasting glucose level $\ge$  5.1 mmol/L at gestation week 38 (gw38)
+
+Both gw32 and gw38 involve the dichotomisation of fasting glucose, a continuous measurement, before entering the composite. This dichotomisation resulted in a large loss of information, and ultimately led to an insignificant composite primary outcome, even though each of the individual components differed significantly between treatment groups.
+
+This paradox, where we have significant individual outcomes but an insignificant composite outcome, highlights the issue of this traditional composite definition which can result in real treatment effects going undetected. This is due to the loss of information through the dichotomisation of continuous outcomes.
+
+## How Composite Test Statistics Are Built Here
+
+To address this paradox, we propose a new definition of a composite that is simple to do but avoids dichotomisation entirely. Instead of collapsing continuous data into binary events, we propose defining the composite as a combination of test statistics calculated for each outcome (e.g. t-values, z-scores). Because test statistics (such as t-scores or z-scores) are standardised, they place outcomes of different types (continuous, categorical, time-to-event) on a common scale. This makes them directly comparable and maintains the underlying data in its natural form.
+
+The resulting composite test statistic can then be assessed using either:
+
+ -	**Permutation Testing,** which provides an exact empirical null distribution.
+ 
+ -	**Asymptotic simulations,** which approximates known distributions.
+	
+## Advantages of the Composite Test Statistic
+
+In short, our composite test statistic improves power over traditional methods of forming composites comparing different data types and is readily useable for a diverse range of datasets. Compared with traditional methods of defining composite outcomes, this approach:
+
+-	**Preserves information,** no dichotomisation is required, and continuous outcomes remain continuous
+
+-	**Higher power** to detect significant treatment effects. Bootstrap power estimations that we performed comparing the composite test statistic method with the traditional definition used in EMERGE showed vast improvements, as demonstrated below.
+```{r, echo=FALSE,  fig.align='center', out.width='80%'}
+knitr::include_graphics("C:/GitHub Composite Test Statistic/composite_power.svg")
+```
+
+-	**Intuitive and statistically sound,** permutation testing provides exact control of type I error, while the asymptotic approach provides scalability to larger data sets.
+
+-	**Applicable to mixed data sets,** we have expanded the concept of the composite test statistic to be able to handle categorical data and survival analyses.
+
+-	**Transparent and Generalisable,** this method can be applied to a range of studies and is not limited to the world of clinical trials. Additionally, we have provided the source code for this application, which is available in the “Source Code” tab.
 
 
-
-Please refer to the tutorial tab for further guidance on how to use the app.
-
-
-
-
+For more detail, the ‘Under the Hood’ tab dives deeper into permutation testing, defining and calculating the composite, and asymptotic theory.
 

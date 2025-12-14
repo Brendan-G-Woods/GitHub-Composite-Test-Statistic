@@ -1,0 +1,94 @@
+---
+title: "Under The Hood"
+author: ""
+date: ""
+output: html_document
+---
+<style>
+body {
+  text-align: left !important;
+}
+
+</style>
+
+## Defining the Composites
+
+This app provides two methods of combining test statistics into a composite;
+
+1. A simple weighted sum of the test statistics (called summed composite ($SC$)) 
+
+$$ Summed\ Composite\ (SC) = w_1\cdot TS_1 + w_2\cdot TS_2 +  ... +w_K \cdot TS_K$$ <br>
+
+The SC definition is particularly useful when treatment effects are expected to act in the same direction across outcomes.<br>
+
+2. A weighted sum of the square of the test statistics (called squared composite ($QC$))
+
+$$Squared\ Composite\ (QC)= w_1\cdot TS_1^2 +w_2\cdot TS_2^2 + ... +w_K\cdot TS_K^2$$<br>
+
+
+The QC definition retains the strength of each effect regardless of individual outcomes direction and can handle a wider range of outcome types.
+
+
+Weights $w_i$ can be selected based on clinical relevance or to maximise power, on a case-by-case basis, or simply, equal weighting can be applied. <br>
+
+## Calculating Test Statistics for Individual Outcomes	
+The test statistics themselves are calculated using hypothesis testing comparing treatment groups. The type of test statistic depends on the type of data each outcome represents, and the number of treatment groups:
+
+### For two treatment groups
+
+-	Continuous outcomes: Two-sample T-tests to produce T-statistics
+
+-	Binary outcomes: Two-sample T-tests to produce T-statistics. (Although two-sample z-tests are commonly applied to binary data, t- and z-statistics are asymptotically equivalent).
+
+-	Multilevel Categorical outcomes: Pearsons Chi-square test to produce $\chi^2$ statistics. The $\chi^2$ statistic is divided by its degrees of freedom (K-1), where K is the number of outcome categories.
+
+-	Survival Outcomes: Log-rank test to produce $\chi^2$  statistics with 1 degree of freedom.
+
+### For >2 treatment Groups
+
+-	Continuous outcomes: Welch’s one-way analysis of variance is used, producing an F-statistic. To account for the dependence of the F-statistic on the number of treatment groups, the statistic is normalised by dividing by the degrees of freedom (G − 1)
+
+-	Binary outcomes: Welch’s one-way analysis of variance is used, producing an F-statistic. To account for the dependence of the F-statistic on the number of treatment groups, the statistic is normalised by dividing by the degrees of freedom (G − 1), where G is the number of treatment groups.
+
+-	Multilevel Categorical outcomes: Pearson’s chi-square test is used to produce $\chi^2$ statistics. The resulting $\chi^2$ statistic is normalised by dividing by its degrees of freedom, (G − 1)(K − 1), where K is the number of outcome categories and G is the number of treatment groups.
+
+-	Survival Outcomes: Log-rank test to produce $\chi^2$  statistics. The resulting $\chi^2$ statistic is normalised by dividing by its degrees of freedom, (G − 1), where G is the number of treatment groups.
+
+These test statistics are calculated under the null hypothesis that there is no treatment effect.The $\chi^2$ statistics are normalised by their degrees of freedom so that statistics from outcomes with different numbers of categories or groups are on a comparable scale.
+
+Naturally, the type of data and the number of treatment groups being compared influence how the composite can be defined and analysed. When more than two treatment groups are present, or when categorical (≥2 levels) or time-to-event outcomes are included, only the squared composite $QC$ is available. In these settings, the underlying test statistics are available only in squared $\chi^2$ form, and asymptotic simulation becomes impractical. Consequently, such composites are analysed using permutation testing.
+
+## Assessing Significance
+Once the composite test statistic is formed, we must assess whether the observed composite is significant under the null hypothesis. Here we have two approaches, permutation testing and asymptotic distributions.
+
+### Permutation testing
+Permutation testing is a randomization-based method for hypothesis testing that is a powerful and widely used statistical tool in various fields. It is an intuitive method that can be readily applied to our proposed composites and offers exact control of type I error rates.
+
+The first step of the procedure involves calculating the relevant test statistics from the original data, which are then combined as per our chosen composite definition. Next, we permute the treatment label across individuals, by using sampling without replacement. This effectively destroys the relationship between the treatment and the outcomes, while preserving the relationships among outcomes within individuals. The same test statistics and composites are recalculated on this permuted data set. This process is performed repeatedly to generate a distribution of composite test statistics under the null hypothesis. The p-value is calculated as the proportion of the permuted composite test statistics that are more extreme than the observed composite test statistic.
+
+Increasing the number of permutations increases the precision of the p-value but also increases computational effort. This trade-off needs to be taken into consideration, particularly in larger or more complex datasets, where reducing the number of permutations may be necessary due to computational constraints. Generally, 500-1000 permutations is considered acceptable, although this depends on the level of significance, the complexity of the dataset, and the number of observations available.
+
+
+### Asymptotic Distributions
+The second method of analysing our composites involves deriving and simulating asymptotic null distributions for the composite test statistics derived via asymptotic arguments. The asymptotic distribution of a statistic is its distribution as sample size increase towards infinity, with many statistics converging on known distributions e.g. normal or chi-square distributions. This enables us to approximate the distribution of our composite test statistics. Simulating the asymptotic null of the summed composite first requires estimating the covariance matrix $\hat{\Sigma}$ of the K test statistics, using the correlation matrix of the outcomes from individuals with complete observations. This assumes that each $TS_i$ is asymptotically normal. Next, we defined a multivariate normal distribution with $\mu = 0$ and covariance matrix $\hat{\Sigma}$, from which we generate many random samples. 
+
+The asymptotic distribution of the summed composite (SC) under the null hypothesis is outlined below: 
+
+$$
+Summed Composite\ (SC) \approx\ \mathcal{N}\!\left(0,\; \mathbf{w}^\top \boldsymbol{\Sigma}\, \mathbf{w}\right)
+$$
+
+
+Where the vector of weights $\mathbf{w}$ is the weights assigned to each test statistic when forming the composite.
+
+For the squared composite test statistic, samples are drawn from a chi-square distribution. If the outcomes were independent and normally distributed, the resulting composite of the squared test statistics would be chi-square distributed with K degrees of freedom. However, often the test statistics are correlated, and so the composite will not follow a standard chi-square distribution. This is accounted for by decomposing the covariance matrix $\Sigma$ into its eigenvalues and applying these as weights to independent chi-squared random variables $\chi^2_i$ with one degree of freedom, as outlined below. 
+
+$$
+Squared\ Composite\ (QC)\ \approx\ \sum_{i=1}^{K} \lambda_i \cdot \chi^2_{\mathrm{df}=1,i}
+$$
+
+Where $\lambda_i$ are the eigenvalues of the covariance matrix $\Sigma$, and K are the number of test statistics forming the composite.
+
+In this application, asymptotic simulations are only available for composites formed from approximately normal test statistics, such as t-statistics. This is because these distributions can be directly asymptotically simulated.
+
+For composites formed from squared test statistics (e.g. chi-square or log-rank statistics), the null distribution is a weighted sum of correlated chi-square variables. These distributions are much more difficult to approximate and therefore such composites are analysed using permutation testing.

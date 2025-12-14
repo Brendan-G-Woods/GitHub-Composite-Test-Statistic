@@ -27,7 +27,8 @@ library('stats')
 
 
 
-html_content <- paste(readLines("Home-Page-HTML.html"), collapse = "\n")
+html_home_page <- paste(readLines("Home-Page-HTML.html"), collapse = "\n")
+html_hood <- paste(readLines("Under-The-Hood-HTML.html"), collapse = "\n")
 html_tutorial <- paste(readLines("Tutorial.html"), collapse = "\n")
 
 ui <- dashboardPage(
@@ -36,6 +37,7 @@ ui <- dashboardPage(
   dashboardSidebar(
     sidebarMenu(id = "tab",
                 menuItem("Home",     tabName = "home",     icon = icon("home")),
+                menuItem("Under the Hood",     tabName = "hood",     icon = icon("gears")),
                 menuItem("Tutorial",     tabName = "tutorial",     icon = icon("chalkboard-teacher")),
                 menuItem("Analysis - SC/QC Composite", tabName = "analysis", icon = icon("chart-bar")),
                 menuItem("Analysis - QC Composite", tabName = "analysis_cat", icon = icon("table")),
@@ -52,6 +54,13 @@ ui <- dashboardPage(
         .skin-green .box.box-success {
           border: 1px solid #2E8B57;
         }
+        .main-header .logo {
+    white-space: normal !important;
+    line-height: 20px !important;
+    font-size: 20px !important;
+    height: auto !important;
+    padding: 5px 10px !important;
+  }
       "))
     ),
     
@@ -60,7 +69,7 @@ ui <- dashboardPage(
               fluidRow(
                 column(width = 12,
                        tags$iframe(
-                         srcdoc = html_content,
+                         srcdoc = html_home_page,
                          width  = "90%",
                          height = "800px",
                          style  = "border: none; zoom: 1.8;"
@@ -68,6 +77,19 @@ ui <- dashboardPage(
                 )
               )
       ),
+      
+      tabItem(tabName = "hood",
+                fluidRow(
+                  column(width = 12,
+                         tags$iframe(
+                           srcdoc = html_hood,
+                           width  = "100%",
+                           height = "800px",
+                           style  = "border: none; zoom: 1.8;"
+                         )
+                  )
+                )
+        ),
       
       tabItem(tabName = "tutorial",
               fluidRow(
@@ -213,7 +235,7 @@ ui <- dashboardPage(
                     conditionalPanel(
                       condition = "input.type == 'raw' && input.analysis_methods.includes('permutation')",
                       column(6,
-                             numericInput("n_permutations", "Number of Permutations", value = 10000, min = 100, step = 1000)
+                             numericInput("n_permutations", "Number of Permutations", value = 1000, min = 100, step = 1000)
                       )
                     )
                   ),
@@ -362,7 +384,8 @@ server <- function(input, output, session) {
   observeEvent(input$file1, {
     req(input$file1)
     df <- read.csv(input$file1$datapath, header = input$header)
-    raw_data(df)
+    df_clean <- df[rowSums(sapply(df, function(x) grepl("\\S", x))) > 0, ]
+    raw_data(df_clean)
   })
   
   
@@ -468,9 +491,11 @@ server <- function(input, output, session) {
   observeEvent(input$cm_file, {
     req(input$cm_file)
     df <- read.csv(input$cm_file$datapath, check.names = FALSE)
-    row_labels <- df[[1]]
-    df <- df[, -1]
-    cm <- as.matrix(df)
+    df_clean <- df[rowSums(sapply(df, function(x) grepl("\\S", x))) > 0, ]
+    raw_data(df_clean)
+    row_labels <- df_clean[[1]]
+    df_clean <- df_clean[, -1]
+    cm <- as.matrix(df_clean)
     rownames(cm) <- row_labels
     colnames(cm) <- row_labels
     if (!isSymmetric(cm)) {
@@ -826,7 +851,8 @@ server <- function(input, output, session) {
   observeEvent(input$file_cat, {
     req(input$file_cat)
     df_cat <- read.csv(input$file_cat$datapath, header = input$header_cat)
-    raw_data_cat(df_cat)
+    df_clean_cat <- df_cat[rowSums(sapply(df_cat, function(x) grepl("\\S", x))) > 0, ]
+    raw_data_cat(df_clean_cat)
   })
   
   output$mytable_cat <- renderDT({

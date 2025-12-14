@@ -54,7 +54,6 @@ In short, our composite test statistic improves power over traditional methods o
 knitr::include_graphics("C:/GitHub Composite Test Statistic/composite_power.svg")
 ```
 
--	**Intuitive and statistically sound,** permutation testing provides exact control of type I error, while the asymptotic approach provides scalability to larger data sets.
 
 -	**Applicable to mixed data sets,** we have expanded the concept of the composite test statistic to be able to handle categorical data and survival analyses.
 

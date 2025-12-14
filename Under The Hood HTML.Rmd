@@ -4,12 +4,17 @@ author: ""
 date: ""
 output: html_document
 ---
-<style>
-body {
-  text-align: left !important;
-}
+<script>
+  window.MathJax = {
+    tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+    svg: { fontCache: 'global' }
+  };
+</script>
 
-</style>
+<script async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+</script>
+
 
 ## Defining the Composites
 
